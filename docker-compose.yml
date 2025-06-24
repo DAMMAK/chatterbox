@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  chatterbox-tts:
+    build: .
+    container_name: chatterbox-tts
+    environment:
+      # Text to synthesize (can be overridden)
+      - TTS_TEXT=Hello from Chatterbox TTS! This is a test of the dockerized text-to-speech system.
+      # Path to audio prompt file (optional, for voice cloning)
+      - AUDIO_PROMPT_PATH=/app/input/reference_voice.wav
+      # Output file path
+      - OUTPUT_PATH=/app/output/generated_speech.wav
+      # GPU settings
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      # Mount directories for input/output
+      - ./input:/app/input:ro
+      - ./output:/app/output:rw
+      # Optional: Mount model cache to persist downloads
+      - ./models:/home/chatterbox/.cache:rw
+    runtime: nvidia  # Required for GPU access
+    # Alternative for older Docker versions:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    
+    # Uncomment if you want to run an interactive session
+    # stdin_open: true
+    # tty: true
+    
+    # For CPU-only usage, comment out the nvidia runtime and GPU environment variables
+    # and uncomment the following:
+    # environment:
+    #   - CUDA_VISIBLE_DEVICES=""
